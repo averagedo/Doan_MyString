@@ -8,8 +8,11 @@ MyString::MyString()
 	width = 0;
 }
 
-MyString::MyString(const string& str)
+MyString::MyString(const MyString& str)
 {
+	arrCh = NULL;
+	en = NULL;
+	width = 0;
 	arrCh = new char[str.length()+1];
 	width = str.length() + 1;
 	en = arrCh;
@@ -22,9 +25,12 @@ MyString::MyString(const string& str)
 	arrCh[str.length()] = '\0';
 }
 
-MyString::MyString(const string& str,unsigned int pos,unsigned int npos)
+MyString::MyString(const MyString& str,unsigned int pos,unsigned int npos)
 {
-	if (str.length() < npos + pos + 1)
+	arrCh = NULL;
+	en = NULL;
+	width = 0;
+	if (str.length() < npos + pos)
 	{
 		for (int i = pos; i <= str.length()-pos; i++)
 		{
@@ -33,7 +39,7 @@ MyString::MyString(const string& str,unsigned int pos,unsigned int npos)
 	}
 	else
 	{
-		for (int i = 0; i <= npos; i++)
+		for (int i = 0; i < npos; i++)
 		{
 			push_back(str[pos + i]);
 		}
@@ -42,6 +48,9 @@ MyString::MyString(const string& str,unsigned int pos,unsigned int npos)
 
 MyString::MyString(const char* s)
 {
+	arrCh = NULL;
+	en = NULL;
+	width = 0;
 	unsigned int i = 0;
 	while (s[i]!='\0')
 	{
@@ -52,6 +61,9 @@ MyString::MyString(const char* s)
 
 MyString::MyString(const char* s,unsigned int n)
 {
+	arrCh = NULL;
+	en = NULL;
+	width = 0;
 	for (int i = 0; i < n; i++)
 	{
 		push_back(s[i]);
@@ -60,17 +72,20 @@ MyString::MyString(const char* s,unsigned int n)
 
 MyString::MyString(unsigned int n, char c)
 {
+	arrCh = NULL;
+	en = NULL;
+	width = 0;
 	for (int i = 0; i < n; i++)
 	{
 		push_back(c);
 	}
 }
 
-MyString::MyString(const MyString& str)
+/*MyString::MyString(const MyString& str)
 {
 	arrCh = new char[1];		//Tranh loi delete o operator=
 	*this = str;
-}
+}*/
 
 //----------Detructor---------
 MyString::~MyString()
@@ -233,6 +248,63 @@ const char& MyString::front()const
 }
 
 //---------Modifiers----------
+MyString & MyString::append(const MyString & str)
+{
+	for (auto i = 0; i < str.length(); i++)
+	{
+		push_back(str[i]);
+	}
+	return *this;
+}
+
+MyString & MyString::append(const MyString & str, size_t subpos, size_t sublen)
+{
+	if (str.length() < subpos + sublen)
+	{
+		for (int i = subpos; i <= str.length() - subpos; i++)
+		{
+			push_back(str[i]);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < sublen; i++)
+		{
+			push_back(str[subpos + i]);
+		}
+	}
+	return *this;
+}
+
+MyString & MyString::append(const char * s)
+{
+	size_t i = 0;
+	while (s[i] != '\0')
+	{
+		push_back(s[i]);
+		i++;
+	}
+	return *this;
+}
+
+MyString & MyString::append(const char * s, size_t n)
+{
+	for (unsigned int i = 0; i < n; i++)
+	{
+		push_back(s[i]);
+	}
+	return *this;
+}
+
+MyString & MyString::append(size_t n, char c)
+{
+	for (unsigned int i = 0; i < n; i++)
+	{
+		push_back(c);
+	}
+	return *this;
+}
+
 void MyString::push_back(char c)
 {
 	if (arrCh == NULL)
@@ -290,54 +362,222 @@ MyString& MyString::assign(const MyString& str)
 MyString& MyString::assign(const MyString& str, unsigned int subpos, unsigned int sublen)
 {
 	clear();
-	if (str.length() < subpos + sublen + 1)
-	{
-		for (int i = subpos; i <= str.length() - subpos; i++)
-		{
-			push_back(str[i]);
-		}
-	}
-	else
-	{
-		for (int i = 0; i <= sublen; i++)
-		{
-			push_back(str[subpos + i]);
-		}
-	}
+	this->append(str, subpos, sublen);
 	return *this;
 }
 
 MyString& MyString::assign(const char* s)
 {
 	clear();
-	unsigned int i = 0;
-	while (s[i] != '\0')
-	{
-		push_back(s[i]);
-		i++;
-	}
+	this->append(s);
 	return *this;
 }
 
 MyString& MyString::assign(const char* s, unsigned int n)
 {
 	clear();
-	for (unsigned int i = 0; i < n; i++)
-	{
-		push_back(s[i]);
-	}
+	this->append(s, n);
 	return *this;
 }
 
 MyString& MyString::assign(unsigned int n, char c)
 {
 	clear();
-	for (unsigned int i = 0; i < n; i++)
+	this->append(n, c);
+	return *this;
+}
+
+MyString & MyString::insert(size_t pos, const MyString & str)
+{
+	//chen vao vi tri truoc pos
+	MyString a;
+	for (int i = pos; i < length(); i++)
 	{
-		push_back(c);
+		a.push_back(arrCh[i]);
+	}
+	if (pos == 0)
+		assign(str);
+	else
+	{
+		en = arrCh + pos - 1;
+		append(str);
+	}
+	append(a);
+	return *this;
+}
+
+MyString & MyString::insert(size_t pos, const MyString & str, size_t subpos, size_t sublen)
+{
+	//chen vao vi tri truoc pos
+	MyString a;
+	for (int i = pos; i < length(); i++)
+	{
+		a.push_back(arrCh[i]);
+	}
+	if (pos == 0)
+		assign(str,subpos,sublen);
+	else
+	{
+		en = arrCh + pos - 1;
+		append(str,subpos,sublen);
+	}
+	append(a);
+	return *this;
+}
+
+MyString & MyString::insert(size_t pos, const char * s)
+{
+	MyString a = s;
+	insert(pos, a);
+	return *this;
+}
+
+MyString & MyString::insert(size_t pos, const char * s, size_t n)
+{
+	MyString a = s;
+	insert(pos, a, 0, n);
+	return *this;
+}
+
+MyString & MyString::insert(size_t pos, size_t n, char c)
+{
+	MyString a;
+	a.assign(n, c);
+	insert(pos, a);
+	return *this;
+}
+
+MyString & MyString::erase(size_t pos, size_t len)
+{
+	if (length() < pos + len )
+	{
+		if (pos == 0)
+			en = NULL;
+		else
+			en = &arrCh[pos-1];
+	}
+	else
+	{
+		size_t size= length();
+		for (size_t i = 0; i < size-pos-len; i++)
+		{
+			arrCh[pos + i] = arrCh[pos + len + i];
+		}
+		en = en - len;
 	}
 	return *this;
 }
+
+const char * MyString::c_str() const
+{
+	return arrCh;
+}
+
+const char * MyString::data() const
+{
+	return arrCh;
+}
+
+char * MyString::get_allocator() const
+{
+	char* a = new char[length()];
+	memcpy(a, arrCh, length());
+	a[length()] = '\0';
+	return a;
+}
+
+size_t MyString::copy(char * s, size_t len, size_t pos)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		s[i] = arrCh[pos + i];
+	}
+	return len;
+}
+
+size_t MyString::Find(const string&str, size_t pos)const
+{
+	if (pos < length())
+	{
+		size_t k, j = 0;
+		for (size_t i = pos; i < length(); i++)
+		{
+			j = 0;
+			while (arrCh[i + j] == str[j])
+			{
+				j++;
+				if (j == str.length())
+				{
+					return i;
+				}
+			}
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find(const char * s, size_t pos) const
+{
+	MyString str = s;
+	if (pos < length())
+	{
+		size_t k, j = 0;
+		for (size_t i = pos; i < length(); i++)
+		{
+			j = 0;
+			while (arrCh[i + j] == str[j])
+			{
+				j++;
+				if (j == str.length())
+				{
+					return i;
+				}
+			}
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find(const char * s, size_t pos, size_t n) const
+{
+	MyString str = s;
+	if (pos < length())
+	{
+		size_t k, j = 0;
+		for (size_t i = pos; i < length(); i++)
+		{
+			j = 0;
+			while (arrCh[i + j] == str[j])
+			{
+				j++;
+				if (j == n)
+				{
+					return i;
+				}
+			}
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find(char c, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			if (c == arrCh[i])
+				return i;
+		}
+	}
+	else
+		return -1;
+}
+
+
 
 //----------Operator----------
 ostream& operator << (ostream& outDevice, MyString& str)
@@ -359,6 +599,24 @@ istream& operator>>(istream& inDevice, MyString& str)
 		str.push_back(a);
 	}
 	return inDevice;
+}
+
+MyString & MyString::operator+=(const MyString & str)
+{
+	append(str);
+	return *this;
+}
+
+MyString & MyString::operator+=(const char * s)
+{
+	append(s);
+	return *this;
+}
+
+MyString & MyString::operator+=(char c)
+{
+	append(1,c);
+	return *this;
 }
 
 char& MyString::operator[](unsigned int pos)
