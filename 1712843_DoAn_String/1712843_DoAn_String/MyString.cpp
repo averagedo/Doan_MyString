@@ -96,6 +96,28 @@ MyString::~MyString()
 	arrCh = NULL;
 }
 
+char * MyString::begin()
+{
+	return arrCh;
+}
+
+char * MyString::end()
+{
+	return en;
+}
+
+//---------Iterators--------
+
+
+
+
+/*reverse_iterator<char> MyString::rbegin()
+{
+	char a[] = "ffa";
+	make_reverse_iterator(a);
+	return ;
+}*/
+
 //----------Capacity---------
 unsigned int MyString::length() const
 {
@@ -468,6 +490,68 @@ MyString & MyString::erase(size_t pos, size_t len)
 	return *this;
 }
 
+MyString & MyString::replace(size_t pos, size_t len, const MyString & str)
+{
+	erase(pos, len);
+	insert(pos, str);
+	return *this;
+}
+
+MyString & MyString::replace(size_t pos, size_t len, const MyString & str, size_t subpos, size_t sublen)
+{
+	erase(pos, len);
+	insert(pos, str, subpos, sublen);
+	return *this;
+}
+
+MyString & MyString::replace(size_t pos, size_t len, const char * s)
+{
+	erase(pos, len);
+	MyString str(s);
+	insert(pos, str);
+	return *this;
+}
+
+MyString & MyString::replace(size_t pos, size_t len, const char * s, size_t n)
+{
+	erase(pos, len);
+	MyString str(s,n); 
+	insert(pos, str);
+	return *this;
+}
+
+MyString & MyString::replace(size_t pos, size_t len, size_t n, char c)
+{
+	erase(pos, len);
+	MyString str(c, n);
+	insert(pos, str);
+	return *this;
+}
+
+void MyString::swap(MyString & str)
+{
+	size_t len = str.length();
+	char* a = new char[len+1];
+	str.copy(a, len, 0);
+	a[len] = '\0';
+	str = arrCh;
+	assign(a);
+	delete[] a;
+}
+
+void MyString::pop_back()
+{
+	if (en != arrCh)
+	{
+		en = en - 1;
+		en[1] = '\0';
+	}
+	else
+	{
+		clear();
+	}
+}
+
 const char * MyString::c_str() const
 {
 	return arrCh;
@@ -495,7 +579,7 @@ size_t MyString::copy(char * s, size_t len, size_t pos)
 	return len;
 }
 
-size_t MyString::Find(const string&str, size_t pos)const
+size_t MyString::Find(const MyString&str, size_t pos)const
 {
 	if (pos < length())
 	{
@@ -543,7 +627,7 @@ size_t MyString::Find(const char * s, size_t pos) const
 size_t MyString::Find(const char * s, size_t pos, size_t n) const
 {
 	MyString str = s;
-	if (pos < length())
+	if (pos < length() && n < str.length())
 	{
 		size_t k, j = 0;
 		for (size_t i = pos; i < length(); i++)
@@ -577,7 +661,384 @@ size_t MyString::Find(char c, size_t pos) const
 		return -1;
 }
 
+size_t MyString::rFind(const MyString & str, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = 1; length() - str.length()*i >= 0; i++)
+		{
+			return Find(str, length() - str.length()*i);
+		}
+	}
+	return -1;
+}
 
+size_t MyString::rFind(const char * s, size_t pos) const
+{
+	if(pos < length())
+	{
+		for (size_t i = 1; length() - strlen(s)*i >= 0; i++)
+		{
+			return Find(s, length() - strlen(s)*i);
+		}
+	}
+	return -1;
+}
+
+size_t MyString::rFind(const char * s, size_t pos, size_t n) const
+{
+	if (pos < length() && n < strlen(s))
+	{
+		for (size_t i = 1; length() - n*i >= 0; i++)
+		{
+			return Find(s, length() - strlen(s)*i,n);
+		}
+	}
+	return -1;
+}
+
+size_t MyString::rFind(char c, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = length()-1; i>=0; i++)
+		{
+			return Find(c, i);
+		}
+	}
+	return -1;
+}
+
+size_t MyString::Find_First_of(const MyString & str, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			for (size_t j = 0; j < str.length(); j++)
+			{
+				if (arrCh[i] == str[j])
+					return i;
+			}
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find_First_of(const char * s, size_t pos) const
+{
+	MyString a = s;
+	return Find_First_of(a, pos);
+}
+
+size_t MyString::Find_First_of(const char * s, size_t pos, size_t n) const
+{
+	MyString str = s;
+	if (pos < length() && n<str.length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			for (size_t j = 0; j < n; j++)
+			{
+				if (arrCh[i] == str[j])
+					return i;
+			}
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find_First_of(char c, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			if (arrCh[i] == c)
+				return i;
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find_Last_of(const MyString & str, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = length() - 1; i >= pos; i--)
+		{
+			return Find_First_of(str, i);
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find_Last_of(const char * s, size_t pos) const
+{
+	MyString str = s;
+	return Find_Last_of(str, pos);
+}
+
+size_t MyString::Find_Last_of(const char * s, size_t pos, size_t n) const
+{
+	if (pos < length())
+	{
+		for (size_t i = length() - 1; i >= pos; i--)
+		{
+			return Find_First_of(s, i, n);
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::Find_Last_of(char c, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = length() - 1; i >= pos; i--)
+		{
+			return Find_First_of(c, i);
+		}
+	}
+	else
+		return -1;
+}
+
+size_t MyString::find_first_not_of(const MyString & str, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			for (size_t j = 0; j <= str.length(); j++)
+			{
+				if (j == str.length())
+					return i;
+				if (arrCh[i] == str[j])
+					break;
+			}
+		}
+		return -1;
+	}
+	else
+		return -1;
+}
+
+size_t MyString::find_first_not_of(const char * s, size_t pos) const
+{
+	MyString str = s;
+	return find_first_not_of(str, pos);
+}
+
+size_t MyString::find_first_not_of(const char * s, size_t pos, size_t n) const
+{
+	MyString str = s;
+	if (pos < length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			for (size_t j = 0; j <= n; j++)
+			{
+				if (j == n)
+					return i;
+				if (arrCh[i] == str[j])
+					break;
+			}
+		}
+		return -1;
+	}
+	else
+		return -1;
+}
+
+size_t MyString::find_first_not_of(char c, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = pos; i < length(); i++)
+		{
+			if (c != arrCh[i]);
+				return i;
+		}
+		return -1;
+	}
+	else
+		return -1;
+}
+
+size_t MyString::find_last_not_of(const MyString & str, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = length()-1; i >= pos; i++)
+		{
+			for (size_t j = 0; j <= str.length(); j++)
+			{
+				if (j == str.length())
+					return i;
+				if (arrCh[i] == str[j])
+					break;
+			}
+		}
+		return -1;
+	}
+	else
+		return -1;
+}
+
+size_t MyString::find_last_not_of(const char * s, size_t pos) const
+{
+	MyString str = s;
+	return find_last_not_of(str, pos);
+}
+
+size_t MyString::find_last_not_of(const char * s, size_t pos, size_t n) const
+{
+	MyString str = s;
+	if (pos < length())
+	{
+		for (size_t i = length() - 1; i >= pos; i++)
+		{
+			for (size_t j = 0; j <= n; j++)
+			{
+				if (j == n)
+					return i;
+				if (arrCh[i] == str[j])
+					break;
+			}
+		}
+		return -1;
+	}
+	else
+		return -1;
+}
+
+size_t MyString::find_last_not_of(char c, size_t pos) const
+{
+	if (pos < length())
+	{
+		for (size_t i = length() - 1; i >= pos; i++)
+		{
+			if (c != arrCh[i])
+				return i;
+		}
+		return -1;
+	}
+	else
+		return -1;
+}
+
+MyString MyString::substr(size_t pos, size_t len) const
+{
+	MyString a(*this, pos, len);
+	return a;
+}
+
+int MyString::compare(const MyString & str) const
+{
+	if (length() > str.length())
+	{
+		for (size_t i = 0; i <= str.length(); i++)
+		{
+			if (i == str.length())
+				return 1;
+			if (arrCh[i] > str[i])
+				return 1;
+			if (arrCh[i] < str[i])
+				return -1;
+		}
+	}
+	else if (length() < str.length())
+	{
+		for (size_t i = 0; i <= length(); i++)
+		{
+			if (i == length())
+				return -1;
+			if (arrCh[i] > str[i])
+				return 1;
+			if (arrCh[i] < str[i])
+				return -1;
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i <= str.length(); i++)
+		{
+			if (i == str.length())
+				return 0;
+			if (arrCh[i] > str[i])
+				return 1;
+			if (arrCh[i] < str[i])
+				return -1;
+		}
+	}
+}
+
+int MyString::compare(size_t pos, size_t len, const MyString & str) const
+{
+	MyString a = substr(pos, len);
+	return a.compare(str);
+}
+
+int MyString::compare(size_t pos, size_t len, const MyString & str, size_t subpos, size_t sublen) const
+{
+	MyString a = substr(pos, len);
+	MyString b;
+	for (size_t i = subpos; i < sublen; i++)
+	{
+		b.push_back(str[i]);
+	}
+	return a.compare(b);
+}
+
+int MyString::compare(const char * s) const
+{
+	MyString str(s);
+	return compare(str);
+}
+
+int MyString::compare(size_t pos, size_t len, const char * s) const
+{
+	MyString a = substr(pos, len);
+	return a.compare(s);
+}
+
+int MyString::compare(size_t pos, size_t len, const char * s, size_t n) const
+{
+	MyString b(s,n);
+	MyString a = substr(pos, len);
+	return a.compare(b);
+}
+
+
+
+istream & Getline(istream & is, MyString & str)
+{
+	str.clear();
+	char c;
+	while (is.get(c))
+	{
+		if (c != '\0' && c != '\n')
+		{
+			str.push_back(c);
+		}
+		else
+			break;
+	}
+	return is;
+}
+
+void swap(MyString & x, MyString & y)
+{
+	MyString str(x);
+	x = y;
+	y = str;
+}
 
 //----------Operator----------
 ostream& operator << (ostream& outDevice, MyString& str)
@@ -699,7 +1160,128 @@ MyString operator+(char lhs, const MyString & rhs)
 	return str;
 }
 
-char MyString::getEn()
+bool operator==(const MyString& lhs, const MyString& rhs)
 {
-	return *en;
+	if (lhs.compare(rhs) == 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator==(const char * lhs, const MyString & rhs)
+{
+	MyString str(lhs);
+	if (str.compare(rhs) == 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator==(const MyString & lhs, const char * rhs)
+{
+	MyString str(rhs);
+	if (str.compare(lhs) == 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator!=(const MyString & lhs, const MyString & rhs)
+{
+	if (lhs.compare(rhs) != 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator!=(const char * lhs, const MyString & rhs)
+{
+	MyString str(lhs);
+	return str != rhs;
+}
+
+bool operator!=(const MyString & lhs, const char * rhs)
+{
+	MyString str(rhs);
+	return str != lhs;
+}
+
+bool operator<(const MyString & lhs, const MyString & rhs)
+{
+	if (lhs.compare(rhs) < 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator<(const char * lhs, const MyString & rhs)
+{
+	MyString str(lhs);
+	return str < rhs;
+}
+
+bool operator<(const MyString & lhs, const char * rhs)
+{
+	MyString str(rhs);
+	return lhs < str;
+}
+
+bool operator<=(const MyString & lhs, const MyString & rhs)
+{
+	if (lhs.compare(rhs) <= 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator<=(const char * lhs, const MyString & rhs)
+{
+	MyString str(lhs);
+	return str <= rhs;
+}
+
+bool operator<=(const MyString & lhs, const char * rhs)
+{
+	MyString str(rhs);
+	return lhs <= str;
+}
+
+bool operator>(const MyString & lhs, const MyString & rhs)
+{
+	if (lhs.compare(rhs) > 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator>(const char * lhs, const MyString & rhs)
+{
+	MyString str(lhs);
+	return str > rhs;
+}
+
+bool operator>(const MyString & lhs, const char * rhs)
+{
+	MyString str(rhs);
+	return lhs > str;
+}
+
+bool operator>=(const MyString & lhs, const MyString & rhs)
+{
+	if (lhs.compare(rhs) >= 0)
+		return true;
+	else
+		return false;
+}
+
+bool operator>=(const char * lhs, const MyString & rhs)
+{
+	MyString str(lhs);
+	return str >= rhs;
+}
+
+bool operator>=(const MyString & lhs, const char * rhs)
+{
+	MyString str(rhs);
+	return lhs >= str;
 }
